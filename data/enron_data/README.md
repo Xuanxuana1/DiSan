@@ -1,0 +1,1 @@
+1. Download Enron data: https://www.kaggle.com/datasets/wcukierski/enron-email-dataset
