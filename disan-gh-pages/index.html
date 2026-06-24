@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DiSan - 分布式智能体隐私文本脱敏</title>
+  <meta name="description" content="DiSan: 通过解耦表示学习，实现跨组织智能体协作中的隐私保护文本脱敏。PII暴露降低20倍，同时保持83%任务语义忠实度。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0e17;
+      --bg-elevated: #111827;
+      --bg-card: #1a2332;
+      --border: #243447;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.15);
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --gradient-start: #0ea5e9;
+      --gradient-end: #8b5cf6;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    ::selection { background: var(--accent); color: #000; }
+
+    /* Navigation */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10, 14, 23, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 64px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 1.4rem; font-weight: 800; letter-spacing: 0;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo img { height: 32px; width: auto; display: block; }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      color: var(--text-muted); text-decoration: none; font-size: 0.9rem;
+      font-weight: 500; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: white; padding: 8px 20px; border-radius: 8px;
+      text-decoration: none; font-weight: 600; font-size: 0.85rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 20px var(--accent-glow); }
+
+    /* Hero */
+    .hero {
+      position: relative; padding: 120px 24px 48px;
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      padding: 8px 18px; border-radius: 100px; font-size: 0.85rem;
+      color: var(--accent); margin-bottom: 16px;
+    }
+    .hero-badge::before {
+      content: ''; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 8px var(--accent);
+    }
+    .hero-badge img {
+      height: 26px; width: auto; display: block; opacity: 0.9;
+    }
+    .hero h1 {
+      font-size: 3.2rem; line-height: 1.1; font-weight: 800; letter-spacing: 0;
+      margin-bottom: 16px;
+    }
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-subtitle {
+      font-size: 1.15rem; color: var(--text-muted); max-width: 540px;
+      margin-bottom: 24px; line-height: 1.8;
+    }
+    .hero-btns { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: white; padding: 14px 32px; border-radius: 12px;
+      text-decoration: none; font-weight: 600; font-size: 1rem;
+      border: none; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(139, 92, 246, 0.3); }
+    .btn-secondary {
+      background: transparent; color: var(--text); padding: 14px 32px;
+      border-radius: 12px; text-decoration: none; font-weight: 600;
+      border: 1px solid var(--border); cursor: pointer;
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-secondary:hover { background: var(--bg-card); border-color: var(--accent); }
+
+    /* Hero visual */
+    .hero-visual {
+      position: relative; min-height: 420px; height: auto;
+      background: var(--bg-card); border-radius: 24px;
+      border: 1px solid var(--border); overflow: visible;
+      display: flex; align-items: center; justify-content: center;
+      padding: 32px 24px;
+    }
+    .hero-visual::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 50%, var(--accent-glow), transparent 70%);
+    }
+    .diagram {
+      position: relative; z-index: 2; width: 90%; display: flex;
+      flex-direction: column; align-items: center; gap: 20px;
+    }
+    .d-box {
+      background: rgba(26, 35, 50, 0.9); border: 1px solid var(--border);
+      border-radius: 16px; padding: 16px 24px; text-align: center;
+      backdrop-filter: blur(8px); width: 100%;
+    }
+    .d-box.role { border-color: var(--accent); box-shadow: 0 0 20px rgba(56,189,248,0.1); }
+    .d-box.style { border-color: var(--warning); box-shadow: 0 0 20px rgba(251,191,36,0.1); }
+    .d-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .d-text { font-size: 0.85rem; font-weight: 500; overflow-wrap: anywhere; }
+    .d-arrow { color: var(--text-muted); font-size: 1.2rem; }
+    .stream-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%;
+    }
+    .d-output {
+      background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(139,92,246,0.1));
+      border: 1px solid rgba(56,189,248,0.3); border-radius: 16px;
+      padding: 16px 24px; text-align: center; width: 100%;
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      max-width: 1200px; margin: 0 auto; padding: 0 24px 48px;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+    }
+    .stat-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 32px 24px; text-align: center;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+    .stat-card:hover { transform: translateY(-4px); border-color: var(--accent); }
+    .stat-num {
+      font-size: 2.6rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      display: block; margin-bottom: 8px;
+    }
+    .stat-label { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* Section通用 */
+    section { padding: 64px 24px; }
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+    .section-header { text-align: center; margin-bottom: 40px; }
+    .section-header h2 { font-size: 2.2rem; font-weight: 700; margin-bottom: 16px; }
+    .section-header p { color: var(--text-muted); font-size: 1.05rem; max-width: 600px; margin: 0 auto; }
+    .section-header a { color: var(--accent); text-decoration: none; }
+    .section-header a:hover { text-decoration: underline; }
+
+    /* Problem */
+    .privacy-risk-map {
+      display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+      gap: 28px; align-items: stretch;
+    }
+    .risk-surface {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;
+    }
+    .risk-node {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px;
+      position: relative; overflow: hidden;
+      min-height: 178px;
+    }
+    .risk-node::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--danger);
+    }
+    .risk-node:nth-child(2)::before { background: var(--warning); }
+    .risk-node:nth-child(3)::before { background: #a78bfa; }
+    .risk-node:nth-child(4)::before { background: var(--accent); }
+    .risk-kicker {
+      display: inline-flex; align-items: center;
+      color: var(--text-muted); font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.8px; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .risk-node h3 { font-size: 1.05rem; margin-bottom: 10px; }
+    .risk-node p { color: var(--text-muted); font-size: 0.88rem; line-height: 1.7; }
+    .risk-node strong { color: var(--text); font-weight: 600; }
+    .disan-solution {
+      background:
+        linear-gradient(180deg, rgba(56, 189, 248, 0.10), rgba(52, 211, 153, 0.05)),
+        var(--bg-card);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 20px; padding: 30px;
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: space-between;
+      min-height: 100%;
+    }
+    .disan-solution::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--success));
+    }
+    .solution-label {
+      color: var(--success); font-size: 0.72rem; font-weight: 800;
+      letter-spacing: 0.9px; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .disan-solution h3 { font-size: 1.22rem; line-height: 1.45; margin-bottom: 12px; }
+    .disan-solution > p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.75; }
+    .boundary-steps { margin: 24px 0; display: flex; flex-direction: column; gap: 14px; }
+    .boundary-row {
+      display: grid; grid-template-columns: 72px 1fr; gap: 14px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+      padding-bottom: 14px;
+    }
+    .boundary-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .boundary-name {
+      color: var(--accent); font-size: 0.78rem; font-weight: 800;
+      letter-spacing: 0.6px; text-transform: uppercase;
+    }
+    .boundary-row.local .boundary-name { color: var(--warning); }
+    .boundary-row p { color: var(--text-muted); font-size: 0.84rem; line-height: 1.65; }
+    .privacy-boundary {
+      border: 1px dashed rgba(52, 211, 153, 0.45);
+      border-radius: 12px; padding: 14px 16px;
+      color: var(--text); font-size: 0.84rem; line-height: 1.65;
+      background: rgba(52, 211, 153, 0.06);
+    }
+
+    /* Running example */
+    .example-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .example-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px;
+    }
+    .example-card h3 { font-size: 1rem; margin-bottom: 12px; }
+    .example-card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; }
+    .example-card code {
+      display: block; white-space: pre-wrap; overflow-wrap: anywhere;
+      margin-top: 12px; color: var(--text); font-family: 'SF Mono', Monaco, monospace;
+      font-size: 0.78rem; line-height: 1.7;
+    }
+    .example-card mark {
+      background: rgba(248, 113, 113, 0.16);
+      color: #fecaca;
+      padding: 0 3px;
+      border-radius: 4px;
+    }
+    /* Method */
+    .method-bg { background: var(--bg-elevated); }
+    .method-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
+    }
+    .method-steps { display: flex; flex-direction: column; gap: 24px; }
+    .step {
+      display: flex; gap: 20px; align-items: flex-start;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px;
+    }
+    .step-num {
+      width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.9rem;
+    }
+    .step h4 { font-size: 1rem; margin-bottom: 6px; }
+    .step p { color: var(--text-muted); font-size: 0.88rem; }
+
+    /* Results */
+    .result-table-wrap {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 32px; overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { padding: 14px 16px; text-align: left; }
+    th { color: var(--text-muted); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+    td { border-bottom: 1px solid rgba(36, 52, 71, 0.5); }
+    tr:last-child td { border-bottom: none; }
+    .best { color: var(--success); font-weight: 700; }
+    .worst { color: var(--danger); }
+    .tag {
+      display: inline-block; padding: 2px 10px; border-radius: 6px;
+      font-size: 0.75rem; font-weight: 600; background: rgba(56,189,248,0.1); color: var(--accent);
+    }
+
+    /* Integration */
+    .integration-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px;
+    }
+    .int-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 40px;
+      transition: all 0.3s;
+    }
+    .int-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+    .int-card h3 { font-size: 1.2rem; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .int-card p { color: var(--text-muted); font-size: 0.92rem; line-height: 1.8; }
+
+    /* Citation */
+    .cite-bg { background: var(--bg-elevated); }
+    .cite-box {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px 32px;
+      font-family: 'SF Mono', Monaco, monospace; font-size: 0.82rem;
+      color: var(--text-muted); line-height: 1.8; overflow-x: auto;
+      position: relative;
+    }
+    .cite-box button {
+      position: absolute; top: 12px; right: 12px;
+      background: var(--border); color: var(--text); border: none;
+      padding: 6px 14px; border-radius: 6px; font-size: 0.75rem;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .cite-box button:hover { background: var(--accent); color: #000; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border); padding: 40px 24px;
+      text-align: center; color: var(--text-muted); font-size: 0.85rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding-top: 120px; }
+      .hero h1 { font-size: 2.2rem; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+      .privacy-risk-map, .method-grid, .integration-grid, .example-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 640px) {
+      .nav-inner { padding: 0 16px; }
+      .logo { font-size: 1.05rem; gap: 8px; }
+      .logo img { height: 28px; }
+      .nav-cta { padding: 8px 14px; }
+      .hero { padding: 104px 16px 40px; }
+      .hero-badge { display: flex; flex-wrap: wrap; border-radius: 8px; line-height: 1.5; }
+      .hero h1 { font-size: 2rem; }
+      .hero-subtitle { font-size: 1rem; }
+      .hero-visual { min-height: auto; padding: 20px 14px; border-radius: 12px; }
+      .diagram { width: 100%; gap: 14px; }
+      .stream-grid { grid-template-columns: 1fr; gap: 10px; }
+      .d-box, .d-output { padding: 14px 16px; border-radius: 10px; }
+      .stats-bar { grid-template-columns: 1fr; padding: 0 16px 40px; }
+      section { padding: 48px 16px; }
+      .risk-surface { grid-template-columns: 1fr; }
+      .risk-node, .disan-solution { border-radius: 12px; padding: 20px; }
+      .boundary-row { grid-template-columns: 1fr; gap: 6px; }
+      .result-table-wrap { padding: 20px 16px; }
+      .cite-box { padding: 48px 16px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo"><img src="shannon.png" alt="DiSan">书安·涤隐</div>
+    <ul class="nav-links">
+      <li><a href="#problem">问题</a></li>
+      <li><a href="#method">方法</a></li>
+      <li><a href="#results">效果</a></li>
+      <li><a href="#running-example">示例</a></li>
+      <li><a href="#integration">集成</a></li>
+    </ul>
+    <a class="nav-cta" href="https://github.com/RezinChow/DiSan" target="_blank" rel="noopener noreferrer">GitHub</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div>
+    <div class="hero-badge"><img src="shannon.png" alt="Intern-Shannon">上海人工智能实验室 · Intern-Shannon 跨组织多Agent隐私协作组件</div>
+    <h1>
+      跨组织 Agent 协作的<br>
+      <span class="highlight">隐私保护文本脱敏</span>
+    </h1>
+    <p class="hero-subtitle">
+      书安·涤隐（Intern-Shannon·DiSan）通过<strong>解耦表示学习</strong>，将文本表示分解为源不变的 Role 子空间与本地保留的 Style 子空间，
+      在保留任务语义的同时降低显式 PII 与隐式分布签名泄露，使跨组织 Agent 能共享可用证据而不集中原始文本。
+    </p>
+    <div class="hero-btns">
+      <a href="#method" class="btn-primary">了解技术原理 →</a>
+      <a href="#citation" class="btn-secondary">查看引用信息</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="diagram">
+      <div class="d-box">
+        <div class="d-label">原始文本</div>
+        <div class="d-text">Per Meridian Bank's Counterparty Risk Bulletin...<br>Apex Dynamics carried $6.1M exposure...</div>
+      </div>
+      <div class="d-arrow">↓ 双流解耦编码器</div>
+      <div class="stream-grid">
+        <div class="d-box role">
+          <div class="d-label" style="color:var(--accent)">Role 子空间（跨 Agent 对齐）</div>
+          <div class="d-text">Q3 close · $6.1M exposure · BB+ downgrade · portfolio review</div>
+        </div>
+        <div class="d-box style">
+          <div class="d-label" style="color:var(--warning)">Style 子空间（本地保留）</div>
+          <div class="d-text">report template · reference scheme · source-linked wording</div>
+        </div>
+      </div>
+      <div class="d-arrow">↓ 生成可共享脱敏文本</div>
+      <div class="d-output">
+        <div class="d-label" style="color:var(--success)">DiSan 脱敏输出</div>
+        <div class="d-text">A corporate-bank Q3 risk bulletin flags an industrials counterparty<br>with $6.1M exposure, a BB+ downgrade, and mandatory portfolio review.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<div class="stats-bar">
+  <div class="stat-card">
+    <span class="stat-num">20×</span>
+    <div class="stat-label">答案级 PII 暴露降低</div>
+  </div>
+  <div class="stat-card">
+    <span class="stat-num">83%</span>
+    <div class="stat-label">RAG 答案忠实度保持</div>
+  </div>
+  <div class="stat-card">
+    <span class="stat-num">73.2%</span>
+    <div class="stat-label">TF-IDF 风格归因降低</div>
+  </div>
+  <div class="stat-card">
+    <span class="stat-num">70.6%</span>
+    <div class="stat-label">神经网络探测归因降低</div>
+  </div>
+</div>
+
+<!-- Problem -->
+<section id="problem">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>跨组织文本共享的隐私风险</h2>
+      <p>DiSan 关注的是表示层隐私：共享文本既可能泄露显式标识符，也可能通过格式、词汇和句法等分布签名暴露来源。</p>
+    </div>
+    <div class="privacy-risk-map">
+      <div class="risk-surface">
+        <div class="risk-node">
+          <div class="risk-kicker">Explicit leakage</div>
+          <h3>显式标识符</h3>
+          <p>姓名、机构名、地址、账号、引用编号等局部 span 会直接暴露私有实体和组织内部记录。</p>
+        </div>
+        <div class="risk-node">
+          <div class="risk-kicker">Distributional leakage</div>
+          <h3>分布签名</h3>
+          <p>报告模板、引用体系、词汇偏好和句法模式分散在整段文本中，单独替换实体后仍可能保留来源指纹。</p>
+        </div>
+        <div class="risk-node">
+          <div class="risk-kicker">Masking boundary</div>
+          <h3>占位符掩码的边界</h3>
+          <p>Placeholder masking 处理的是显式 span。论文中最强掩码基线遮住 <strong>19.2%</strong> token 后，TF-IDF 风格归因只降低 <strong>18.6%</strong>。</p>
+        </div>
+        <div class="risk-node">
+          <div class="risk-kicker">Threat surface</div>
+          <h3>共享后的推断风险</h3>
+          <p>请求方看到脱敏证据后，仍可能尝试推断超出公开 capability tag 的来源信息、文档结构和组织习惯。</p>
+        </div>
+      </div>
+      <div class="disan-solution">
+        <div>
+          <div class="solution-label">DiSan response</div>
+          <h3>在表示层划定可共享边界</h3>
+          <p>DiSan 不把问题简化为“多遮几个词”，而是把任务语义和源相关变化分离，再从可共享语义生成脱敏文本。</p>
+          <div class="boundary-steps">
+            <div class="boundary-row">
+              <div class="boundary-name">Role</div>
+              <p>源不变的任务语义，用于保留 exposure、rating change、review status 等可回答问题的事实。</p>
+            </div>
+            <div class="boundary-row local">
+              <div class="boundary-name">Style</div>
+              <p>源相关表达变化只在本地使用，不作为跨组织共享产物上传或传输。</p>
+            </div>
+          </div>
+        </div>
+        <div class="privacy-boundary">跨边界传输的是 sanitized text；训练阶段只交换扰动后的 Role prototypes，不集中原始文本。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Method -->
+<section id="method" class="method-bg">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>DiSan 核心方法</h2>
+      <p>基于解耦表示的联邦文本脱敏框架，不集中原始数据即可完成联合训练。</p>
+    </div>
+    <div class="method-grid">
+      <div class="method-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <h4>双流解耦编码</h4>
+            <p>基于 LongT5 构建双流编码器，将输入文本映射到 <strong>Role 子空间</strong>（源不变的任务语义）与 <strong>Style 子空间</strong>（源相关的表达变化）。正交性损失鼓励二者分离。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <h4>联邦原型对齐</h4>
+            <p>各 Agent 在本地维护 Role 原型（prototype），服务端只聚合经过扰动的原型向量。原型对齐稳定非 IID Agent 之间的 Role 空间，而不集中原始文本。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <h4>对抗隐私正则</h4>
+            <p>引入梯度反转层（GRL）训练原型对抗分类器，降低上传 Role 原型中的持久来源指纹。论文同时通过表示、原型和输出三个层面做泄露诊断。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <h4>仅共享 Role 流</h4>
+            <p>部署时跨边界传输的只有脱敏文本。Role 表示支撑任务事实保留，Style 表示作为本地生成辅助后被丢弃，不上传、不共享。</p>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual" style="height: auto; min-height: 360px; padding: 24px;">
+        <div class="diagram" style="gap: 16px;">
+          <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">架构概览</div>
+          <div class="d-box" style="border-color: var(--border);">
+            <div class="d-label">输入层</div>
+            <div class="d-text">Original Text + PII Labels</div>
+          </div>
+          <div class="d-arrow">↓ LongT5-TGlobal Encoder</div>
+          <div class="stream-grid">
+            <div class="d-box role">
+              <div class="d-label" style="color:var(--accent)">Role Stream</div>
+              <div class="d-text" style="font-size:0.78rem">Source-invariant semantics<br>Prototype-aligned</div>
+            </div>
+            <div class="d-box style">
+              <div class="d-label" style="color:var(--warning)">Style Stream</div>
+              <div class="d-text" style="font-size:0.78rem">Source-linked variation<br>Kept local</div>
+            </div>
+          </div>
+          <div class="d-arrow">↓ Sanitizer Decoding</div>
+          <div class="d-output">
+            <div class="d-label" style="color:var(--success)">Sanitized Output</div>
+            <div class="d-text" style="font-size:0.8rem">Source-invariant · PII-free · Semantically faithful</div>
+          </div>
+          <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+            <span class="tag">LoRA</span>
+            <span class="tag">FedProx</span>
+            <span class="tag">GRL</span>
+            <span class="tag">Prototype Align</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Results -->
+<section id="results">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>实验结果</h2>
+      <p>在合成金融 RAG 基准与真实 Enron 邮件语料上的双重验证，对比标识符掩码与最新作者混淆方法。</p>
+    </div>
+
+    <h3 style="margin-bottom: 20px; font-size: 1.1rem;">🔒 隐私保护：Enron 作者归因攻击（7-way）</h3>
+    <div class="result-table-wrap" style="margin-bottom: 48px;">
+      <table>
+        <thead>
+          <tr>
+            <th>方法</th>
+            <th>掩码比例</th>
+            <th>TF-IDF F1 ↓</th>
+            <th>TF-IDF 降幅</th>
+            <th>BERT F1 ↓</th>
+            <th>BERT 降幅</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>原始文本</td>
+            <td>—</td>
+            <td>0.825</td>
+            <td>—</td>
+            <td>0.691</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>+ Piiranha 掩码</td>
+            <td>5.3%</td>
+            <td>0.785</td>
+            <td>4.9%</td>
+            <td>0.669</td>
+            <td>3.2%</td>
+          </tr>
+          <tr>
+            <td>+ DeBERTa 掩码</td>
+            <td>17.5%</td>
+            <td>0.744</td>
+            <td>9.9%</td>
+            <td>0.649</td>
+            <td>6.1%</td>
+          </tr>
+          <tr>
+            <td>+ GLiNER 掩码</td>
+            <td>19.2%</td>
+            <td>0.672</td>
+            <td>18.6%</td>
+            <td>0.618</td>
+            <td>10.6%</td>
+          </tr>
+          <tr>
+            <td>JAMDEC</td>
+            <td>—</td>
+            <td>0.816</td>
+            <td>1.2%</td>
+            <td>0.696</td>
+            <td>-0.6%</td>
+          </tr>
+          <tr>
+            <td>StyleRemix Fixed</td>
+            <td>—</td>
+            <td>0.737</td>
+            <td>11.5%</td>
+            <td>0.664</td>
+            <td>3.4%</td>
+          </tr>
+          <tr>
+            <td>StyleRemix Adaptive</td>
+            <td>—</td>
+            <td class="worst">0.970</td>
+            <td class="worst">-20.8% ↑</td>
+            <td class="worst">0.845</td>
+            <td class="worst">-27.9% ↑</td>
+          </tr>
+          <tr>
+            <td><strong>DiSan (Ours)</strong></td>
+            <td>—</td>
+            <td class="best">0.221</td>
+            <td class="best">73.2%</td>
+            <td class="best">0.203</td>
+            <td class="best">70.6%</td>
+          </tr>
+          <tr style="opacity:0.6">
+            <td>随机基线</td>
+            <td>—</td>
+            <td>0.143</td>
+            <td>—</td>
+            <td>0.143</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-bottom: 20px; font-size: 1.1rem;">📊 效用保持：分布式多 Agent RAG 基准</h3>
+    <div class="result-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>指标</th>
+            <th>原始共享</th>
+            <th>标识符掩码</th>
+            <th>LLM 改写</th>
+            <th><strong>DiSan</strong></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Chunk PII 暴露 (↓)</td>
+            <td>2.40</td>
+            <td>0.42</td>
+            <td>0.12</td>
+            <td class="best">0.12</td>
+          </tr>
+          <tr>
+            <td>答案 PII 率 (↓)</td>
+            <td>40.0%</td>
+            <td>4.4%</td>
+            <td>3.1%</td>
+            <td class="best">2.0%</td>
+          </tr>
+          <tr>
+            <td>答案忠实度 (↑)</td>
+            <td>86%</td>
+            <td>81%</td>
+            <td>84%</td>
+            <td class="best">83%</td>
+          </tr>
+          <tr>
+            <td>语义相似度 (↑)</td>
+            <td>0.85</td>
+            <td>0.77</td>
+            <td>0.78</td>
+            <td class="best">0.82</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Running Example -->
+<section id="running-example" class="method-bg">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>Running Example</h2>
+      <p>论文 Table 1 的 CorporateBank→AssetManager 例子展示了同一段风险证据在原文、占位符掩码和 DiSan 输出下的差异。</p>
+    </div>
+    <div class="example-grid">
+      <div class="example-card">
+        <h3>1. 原始私有文本</h3>
+        <p>原文同时包含可用于下游分析的事实和来源相关线索：机构名称、内部 bulletin 名称、引用编号和行业分类表达。</p>
+        <code>Per <mark>Meridian Bank</mark>'s <mark>Counterparty Risk Bulletin</mark> (Ref: <mark>CR-2024-047</mark>), <mark>Apex Dynamics</mark> carried $6.1M exposure as of Q3 close, was downgraded to BB+, and was flagged for portfolio review.</code>
+      </div>
+      <div class="example-card">
+        <h3>2. 占位符掩码</h3>
+        <p>掩码移除了部分显式实体，但仍留下 Counterparty Risk Bulletin、Q3 close、portfolio review 等来源文档格式与措辞模式。</p>
+        <code>Per Meridian Bank's Counterparty Risk Bulletin (Ref: [ID]), [ORG] carried $6.1M exposure as of Q3 close, was downgraded to BB+, and was flagged for portfolio review.</code>
+      </div>
+      <div class="example-card">
+        <h3>3. DiSan 输出</h3>
+        <p>DiSan 保留 exposure、rating change、review status 等任务事实，同时泛化来源名称、引用体系和专有表达。</p>
+        <code>A corporate-bank Q3 risk bulletin flags an industrials counterparty with $6.1M exposure, a BB+ downgrade, and mandatory portfolio review.</code>
+      </div>
+    </div>
+
+    <p style="margin-top: 24px; text-align: center; color: var(--text-muted);">
+      完整叙事、复现命令和多方 RAG 示例见
+      <a style="color: var(--accent);" href="https://github.com/RezinChow/DiSan/blob/main/docs/running_examples.md" target="_blank" rel="noopener noreferrer">docs/running_examples.md</a>。
+    </p>
+  </div>
+</section>
+
+<!-- Integration -->
+<section id="integration" class="method-bg">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>集成与应用</h2>
+      <p>DiSan 可作为跨 Agent 文本共享前的脱敏组件，在返回证据、生成摘要或构建分布式 RAG 时按需调用。</p>
+    </div>
+    <div class="integration-grid">
+      <div class="int-card">
+        <h3>🏦 内部协作</h3>
+        <p>同一组织内的不同系统共享检索证据时，DiSan 可在证据返回前去除显式 PII 和内部文档指纹，保留可推理的业务事实。</p>
+      </div>
+      <div class="int-card">
+        <h3>🏢 跨部门协作</h3>
+        <p>不同部门各自持有私有语料库时，DiSan 支持只交换脱敏片段或摘要，避免把完整原文、模板和部门习惯暴露给请求方。</p>
+      </div>
+      <div class="int-card">
+        <h3>🌐 跨机构联盟</h3>
+        <p>跨机构协作中，各方可在公共能力标签范围内广播需求并返回脱敏证据，使联合分析依赖可共享知识，而不是直接转移私有文档。</p>
+      </div>
+      <div class="int-card">
+        <h3>🔌 即插即用</h3>
+        <p>可嵌入现有 RAG 或多 Agent 协作流程：检索本地证据、调用脱敏器、传输脱敏文本，再由请求方完成答案合成和审计记录。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Citation -->
+<section id="citation" class="cite-bg">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>引用</h2>
+      <p></p>
+    </div>
+    <div class="cite-box">
+      <button onclick="copyCite()">复制</button>
+      <pre id="citation-text">@misc{liu2026privacypreservingtextsanitizationdistributed,
+      title={Privacy-Preserving Text Sanitization for Distributed Agents Collaboration via Disentangled Representations}, 
+      author={Xuan Liu and Hefeng Zhou and Sicheng Chen and Chao Yang and Xingcheng Xu and Jingjing Qu and Jiong Lou and Jie LI and Xia Hu},
+      year={2026},
+      eprint={2606.15335},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2606.15335}, 
+}</pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© Shanghai Artificial Intelligence Laboratory. Released for research use.</p>
+  <p style="margin-top:8px">
+    <a href="https://github.com/RezinChow/DiSan" target="_blank" rel="noopener noreferrer">GitHub</a> ·
+    <a href="https://arxiv.org/abs/2606.15335" target="_blank" rel="noopener noreferrer">arXiv</a> ·
+    <a href="#citation">Citation</a> ·
+    <a href="https://intern-shannon.org" target="_blank" rel="noopener noreferrer">Intern-Shannon</a>
+  </p>
+</footer>
+
+<script>
+  function copyCite() {
+    const text = document.getElementById('citation-text').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.cite-box button');
+      btn.textContent = '已复制';
+      setTimeout(() => btn.textContent = '复制', 1500);
+    });
+  }
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+
+</body>
+</html>
