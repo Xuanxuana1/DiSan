@@ -2,18 +2,16 @@
 
 ## Goal
 
-Move the public-facing identity of the existing DiSan project page from the
-legacy `RezinChow` repository to `Xuanxuana1/DiSan`, prominently show the EMNLP
-2026 Main Conference acceptance, and make the site deployable from its current
-directory.
+Move the public-facing identity of the existing DiSan project page to the
+official `A3S-Lab/DiSan` repository, prominently show the EMNLP 2026 Main
+Conference acceptance, and make the site deployable from its current directory.
 
 ## Page Changes
 
 - Preserve the existing dark technical visual direction and page structure.
 - Add an `EMNLP 2026 Main Conference Accepted` badge in the first viewport,
   next to the existing Intern-Shannon project badge.
-- Update every repository link to `https://github.com/Xuanxuana1/DiSan`.
-- Update every project-page link to `https://xuanxuana1.github.io/DiSan/`.
+- Update every repository link to `https://github.com/A3S-Lab/DiSan`.
 - Update the press-kit metadata with the acceptance status.
 
 ## Deployment

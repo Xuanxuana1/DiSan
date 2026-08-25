@@ -20,9 +20,8 @@
 | **所属机构** | 上海人工智能实验室（Shanghai AI Lab）、上海交通大学 |
 | **集成产品** | Intern-Shannon 多智能体协作框架内置隐私模块 |
 | **会议状态** | EMNLP 2026 Main Conference Accepted |
-| **开源地址** | `https://github.com/Xuanxuana1/DiSan` |
+| **开源地址** | `https://github.com/A3S-Lab/DiSan` |
 | **论文地址** | `https://arxiv.org/abs/2606.15335` |
-| **项目页面** | `https://xuanxuana1.github.io/DiSan/` |
 
 ---
 
@@ -120,8 +119,7 @@ Only the role stream is shared. The style stays local.
 Results on Enron: 73.2% reduction in stylometric attribution,
 while keeping 83% answer faithfulness in distributed RAG.
 
-Project page: https://xuanxuana1.github.io/DiSan/
-Code: https://github.com/Xuanxuana1/DiSan
+Official repository: https://github.com/A3S-Lab/DiSan
 
 Built into Intern-Shannon by Shanghai AI Lab.
 ```
@@ -170,8 +168,7 @@ Hi folks, we’d like to share DiSan, a framework for privacy-preserving text sa
 - BERT probe: 0.691 → 0.203 (70.6% reduction)
 - Distributed RAG: 20× reduction in answer-level PII exposure, 83% answer faithfulness retained
 
-**Code:** https://github.com/Xuanxuana1/DiSan
-**Project page:** https://xuanxuana1.github.io/DiSan/
+**Official repository:** https://github.com/A3S-Lab/DiSan
 
 Happy to answer questions!
 ```

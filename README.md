@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <a href="https://xuanxuana1.github.io/DiSan/">Project Page</a> |
+  <a href="https://github.com/A3S-Lab/DiSan">Official Repository</a> |
   <a href="https://arxiv.org/abs/2606.15335">Paper</a> |
   <a href="2606.15335v1.pdf">PDF</a> |
   <a href="#overview">Overview</a> |
