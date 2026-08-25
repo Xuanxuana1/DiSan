@@ -1,6 +1,56 @@
-# DiSan Anonymous Code Release
+<h1 align="center">DiSan</h1>
 
-This repository contains the code needed to reproduce the main DiSan training, retrieval, and privacy-attack experiments. 
+<p align="center">
+  <strong>Privacy-Preserving Text Sanitization for Distributed Agents Collaboration via Disentangled Representations</strong>
+</p>
+
+<p align="center">
+  <a href="https://arxiv.org/abs/2606.15335">
+    <img src="https://img.shields.io/badge/arXiv-2606.15335-b31b1b?logo=arxiv&logoColor=white" alt="arXiv paper">
+  </a>
+  <img src="https://img.shields.io/badge/EMNLP-2026%20Main%20Conference-4b6ea9" alt="EMNLP 2026 Main Conference">
+</p>
+
+<p align="center">
+  Accepted to the <strong>EMNLP 2026 Main Conference</strong>.
+</p>
+
+<p align="center">
+  <a href="https://arxiv.org/abs/2606.15335">Paper</a> |
+  <a href="2606.15335v1.pdf">PDF</a> |
+  <a href="#overview">Overview</a> |
+  <a href="#environment">Environment</a> |
+  <a href="#attack-experiments">Attack Experiments</a>
+</p>
+
+This repository contains the code needed to reproduce the main DiSan training,
+retrieval, and privacy-attack experiments.
+
+## Overview
+
+DiSan is a privacy-preserving text sanitization framework for collaboration
+between distributed agents. It separates task-relevant role information from
+source-identifying style information, keeps raw documents and style
+representations local, and aligns compact role prototypes without centralizing
+private text.
+
+<p align="center">
+  <img src="docs/images/disan-architecture.png" width="950" alt="DiSan architecture">
+</p>
+
+<p align="center"><em>DiSan architecture: local role-style disentanglement and privacy-aware federated prototype alignment.</em></p>
+
+## Motivation
+
+Cross-organizational agent collaboration can expose both explicit identifiers
+and implicit distributional signatures. DiSan sanitizes exchanged text while
+preserving the semantics required by downstream agents.
+
+<p align="center">
+  <img src="docs/images/disan-motivation.png" width="680" alt="Privacy risks in cross-organizational agent collaboration and the DiSan approach">
+</p>
+
+<p align="center"><em>Privacy risks across collaboration settings and the motivation for DiSan.</em></p>
 
 ## Directory Layout
 
@@ -11,7 +61,6 @@ This repository contains the code needed to reproduce the main DiSan training, r
   used for a specific reproduction run.
 - `long-t5-tglobal-base/`, `bge-m3/`, `bge-reranker-v2-m3/`,
   `gliner-pii-large-v1.0/`: placeholder directories documenting expected local model locations. Do not commit model weights unless their licenses permit it.
-
 
 ## Environment
 
