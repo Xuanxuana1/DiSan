@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DiSan - 分布式智能体隐私文本脱敏</title>
-  <meta name="description" content="DiSan: 通过解耦表示学习，实现跨组织智能体协作中的隐私保护文本脱敏。PII暴露降低20倍，同时保持83%任务语义忠实度。">
+  <title>DiSan - EMNLP 2026 Main Conference</title>
+  <meta name="description" content="DiSan: EMNLP 2026 Main Conference accepted paper on privacy-preserving text sanitization for distributed agent collaboration.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
@@ -72,11 +72,15 @@
       max-width: 1200px; margin: 0 auto;
       display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center;
     }
+    .hero-badges {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 10px;
       background: var(--bg-card); border: 1px solid var(--border);
       padding: 8px 18px; border-radius: 100px; font-size: 0.85rem;
-      color: var(--accent); margin-bottom: 16px;
+      color: var(--accent);
     }
     .hero-badge::before {
       content: ''; width: 8px; height: 8px; border-radius: 50%;
@@ -84,6 +88,18 @@
     }
     .hero-badge img {
       height: 26px; width: auto; display: block; opacity: 0.9;
+    }
+    .acceptance-badge {
+      display: inline-flex; align-items: center; gap: 9px;
+      background: rgba(52, 211, 153, 0.08);
+      border: 1px solid rgba(52, 211, 153, 0.38);
+      padding: 9px 16px; border-radius: 100px;
+      color: var(--success); font-size: 0.82rem; font-weight: 700;
+    }
+    .acceptance-badge::before {
+      content: ''; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--success); box-shadow: 0 0 9px rgba(52, 211, 153, 0.7);
+      flex: 0 0 auto;
     }
     .hero h1 {
       font-size: 3.2rem; line-height: 1.1; font-weight: 800; letter-spacing: 0;
@@ -357,10 +373,14 @@
       .logo img { height: 28px; }
       .nav-cta { padding: 8px 14px; }
       .hero { padding: 104px 16px 40px; }
-      .hero-badge { display: flex; flex-wrap: wrap; border-radius: 8px; line-height: 1.5; }
+      .hero > div { min-width: 0; }
+      .hero-badges { align-items: stretch; }
+      .hero-badge, .acceptance-badge { width: 100%; max-width: 100%; }
+      .hero-badge { border-radius: 8px; line-height: 1.5; }
+      .hero-badge span { min-width: 0; overflow-wrap: anywhere; }
       .hero h1 { font-size: 2rem; }
-      .hero-subtitle { font-size: 1rem; }
-      .hero-visual { min-height: auto; padding: 20px 14px; border-radius: 12px; }
+      .hero-subtitle { font-size: 1rem; overflow-wrap: anywhere; }
+      .hero-visual { width: 100%; min-width: 0; min-height: auto; padding: 20px 14px; border-radius: 12px; overflow: hidden; }
       .diagram { width: 100%; gap: 14px; }
       .stream-grid { grid-template-columns: 1fr; gap: 10px; }
       .d-box, .d-output { padding: 14px 16px; border-radius: 10px; }
@@ -386,14 +406,17 @@
       <li><a href="#running-example">示例</a></li>
       <li><a href="#integration">集成</a></li>
     </ul>
-    <a class="nav-cta" href="https://github.com/RezinChow/DiSan" target="_blank" rel="noopener noreferrer">GitHub</a>
+    <a class="nav-cta" href="https://github.com/Xuanxuana1/DiSan" target="_blank" rel="noopener noreferrer">GitHub</a>
   </div>
 </nav>
 
 <!-- Hero -->
 <section class="hero">
   <div>
-    <div class="hero-badge"><img src="shannon.png" alt="Intern-Shannon">上海人工智能实验室 · Intern-Shannon 跨组织多Agent隐私协作组件</div>
+    <div class="hero-badges">
+      <div class="acceptance-badge">EMNLP 2026 Main Conference · Accepted</div>
+      <div class="hero-badge"><img src="shannon.png" alt="Intern-Shannon"><span>上海人工智能实验室 · Intern-Shannon 跨组织多Agent隐私协作组件</span></div>
+    </div>
     <h1>
       跨组织 Agent 协作的<br>
       <span class="highlight">隐私保护文本脱敏</span>
@@ -750,7 +773,7 @@
 
     <p style="margin-top: 24px; text-align: center; color: var(--text-muted);">
       完整叙事、复现命令和多方 RAG 示例见
-      <a style="color: var(--accent);" href="https://github.com/RezinChow/DiSan/blob/main/docs/running_examples.md" target="_blank" rel="noopener noreferrer">docs/running_examples.md</a>。
+      <a style="color: var(--accent);" href="https://github.com/Xuanxuana1/DiSan/blob/main/docs/running_examples.md" target="_blank" rel="noopener noreferrer">docs/running_examples.md</a>。
     </p>
   </div>
 </section>
@@ -808,7 +831,7 @@
 <footer>
   <p>© Shanghai Artificial Intelligence Laboratory. Released for research use.</p>
   <p style="margin-top:8px">
-    <a href="https://github.com/RezinChow/DiSan" target="_blank" rel="noopener noreferrer">GitHub</a> ·
+    <a href="https://github.com/Xuanxuana1/DiSan" target="_blank" rel="noopener noreferrer">GitHub</a> ·
     <a href="https://arxiv.org/abs/2606.15335" target="_blank" rel="noopener noreferrer">arXiv</a> ·
     <a href="#citation">Citation</a> ·
     <a href="https://intern-shannon.org" target="_blank" rel="noopener noreferrer">Intern-Shannon</a>
